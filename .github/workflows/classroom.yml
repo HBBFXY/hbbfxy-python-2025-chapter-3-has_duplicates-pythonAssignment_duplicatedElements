@@ -1,0 +1,30 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: dupli Test
+      id: dupli-test
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: dupli Test
+        setup-command: ''
+        command: python3 test_main.py
+        timeout: 2
+        max-score: 100
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        DUPLI-TEST_RESULTS: "${{steps.dupli-test.outputs.result}}"
+      with:
+        runners: dupli-test
